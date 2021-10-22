@@ -1,7 +1,7 @@
 #The script will take information from the "pool" column (second column), to separate the OTU table into subtables (1 subtable per pool).
-setwd("/home/laur/Schreibtisch/NC_filtering_complex_OTU_table/")
+#setwd("/home/laur/Desktop/NC_complex_otu_tables/")
 
-#First remove the top left field "#OTU_ID" before reading in.
+#Top left field "#OTU_ID" has been removed already.
 #Then, read in otu table.
 data <- read.table("otu_table_example.csv", sep="\t", header=T, row.names = 1)
 head(data)
@@ -10,20 +10,13 @@ head(data)
 tsv <- read.table("example_table.tsv", header = FALSE, sep = "\t", stringsAsFactors = FALSE)
 head(tsv)
 
+num_pools <- max(tsv$V2)
+
 #Create subtables, one for each pool number (in second column)
-pool1names <- tsv[tsv$V2==1 , 1]
-pool1names <- gsub("-",".",pool1names)
-
-s1 <- data[ , pool1names]
-
-pool2names <- tsv[tsv$V2==2, 1]
-pool2names <- gsub("-",".",pool2names)
-s2 <- data[ , pool2names]
-
-pool3names <- tsv[tsv$V2==3, 1]
-pool3names <- gsub("-",".",pool3names)
-s3 <- data[ , pool3names]
-
-write.table(s1, file="subtable1.csv", sep="\t", quote=F, col.names = NA, append = FALSE)
-write.table(s2, file="subtable2.csv", sep="\t", quote=F, col.names = NA)
-write.table(s3, file="subtable3.csv", sep="\t", quote=F, col.names = NA)
+for(i in 1:num_pools){
+  poolnames <- tsv[tsv$V2==i, 1]
+  poolnames <- gsub("-",".",poolnames)
+  st <- data[ ,poolnames]
+  myfile <- paste0("subtable", i, ".csv")
+  write.table(st, file=myfile, sep="\t", quote=F, col.names = NA, append = FALSE)
+}
