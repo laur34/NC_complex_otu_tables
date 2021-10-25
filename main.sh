@@ -15,12 +15,6 @@ for file in subtable*.csv; do
     ./v2_negative_controls_correction.sh "neg" "$file"
 done
 
-
-#Add header to first (OTU) columns for joining
-#sed -z -i 's/^/ID/' filtered_subtable*.csv
-
-#NUMFLDS=$(awk "{print NF}" filez.tmp | head -n1)
-
 #Paste the filtered subtables together.
 arr=(filtered_subtable*.csv)
 #file="${arr[1]}"
@@ -33,21 +27,24 @@ done
 
 #Add first cell to header, and then even it out with column -t:
 sed -z 's/^/ID/' file.tmp > filez.tmp
-sed 's/\t\t/\/g' filez.tmp > filtered_tbl_all.csv
+sed 's/\t\t/\t/g' filez.tmp > filtered_tbl_all.csv
 #sed -i 's/\t\t/\t/g' filez.tmp
 
-#column -t filez.tmp > filtered_tbl_all.csv
-#column -c $NUMFLDS filez.tmp > filtest.csv
-#other way:
-#tmp=$(mktemp)
-#files=(filtered_subtable*.csv)
 
-#cp "${files[0]}" filtered_tbl_all.csv
-#for file in "${files[@]:1}"; do
-#    join --nocheck-order filtered_tbl_all.csv "$file" | column -t > "$tmp" && mv "$tmp" filtered_tbl_all.csv
-#done
-
-rm f*.tmp
 #Remove OTUs with zero reads overall.
+##First calculate row sums and put on end of new file.
+awk '{
+	for (i=2; i<=NF; i++){
+	sumrows+= $i
+	}; print $0, sumrows; sumrows=0
+}' filtered_tbl_all.csv > withrowsums.txt
 
+##Then print rows of new file where sums are not zero.
+awk '{if ( (NR!=1) && ($NF!= 0) ){print $0} }' withrowsums.txt > filteredall_wrs_nohead.csv
+###Remove row sums
+awk '{sub(/\s*\S+$/,"")}1' filteredall_wrs_nohead.csv > filteredall_nohead.csv
+###Add back header
+cat <(head -n1 filtered_tbl_all.csv) filteredall_nohead.csv > filtered_otu_table.csv
 
+#Delete intermediate files.
+rm f*.tmp *nohead.csv withrowsums.txt
