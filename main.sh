@@ -1,7 +1,16 @@
-#Control script
+#Control script - Run this script (bash main.sh) - it will call the other scripts in this repo.
+#Inputs are otu table (e.g. $otu_table) and a tab-separated table of sample names and their respective data pool numbers.
+#Specify negative control pattern to grep for (e.g. "neg.")
 
-#Remove header from otu_table_0.98.txt, so that R can read it in correctly.
-sed -z 's/#OTU ID\t//' otu_table_0.98.txt > otu_table_example.csv
+otu_table=$1
+tsv_table=$2
+neg_pattern=$3
+
+
+cp $tsv_table example_table.tsv
+
+#Remove header from $otu_table, so that R can read it in correctly.
+sed -z 's/#OTU ID\t//' $otu_table > otu_table_example.csv
 
 #Run R script which takes information from the "pool" column (second column) of TSV file, to separate the OTU table into subtables (1 subtable per pool).
 Rscript create_subtables.R 
@@ -11,8 +20,8 @@ Rscript create_subtables.R
 #Apply v2_negative_controls_correction.sh on each of the above-created subtables. #### Did the script orig assume "#OTU ID" in otu tables? Because these don't have it.
 #Other potential issue:  overwriting of intermediate files as v2 script is called repeatedly in loop
 
-for file in subtable*.csv; do
-    ./v2_negative_controls_correction.sh "neg" "$file"
+for subtab in subtable*.csv; do
+    ./v2_negative_controls_correction.sh $subtab $neg_pattern
 done
 
 #Paste the filtered subtables together.
@@ -47,4 +56,5 @@ awk '{sub(/\s*\S+$/,"")}1' filteredall_wrs_nohead.csv > filteredall_nohead.csv
 cat <(head -n1 filtered_tbl_all.csv) filteredall_nohead.csv > filtered_otu_table.csv
 
 #Delete intermediate files.
-rm f*.tmp *nohead.csv withrowsums.txt filteredall* rowsums.txt filtered_tbl_all.csv neg_ctrls* max_neg* *subtable.txt *biol_samples*
+#rm f*.tmp *nohead.?sv *rowsums.txt filtered_tbl_all.csv max_neg_biol* biol_samples_header.tsv
+#rm otu_table_example.csv filtered_subtable*.csv
