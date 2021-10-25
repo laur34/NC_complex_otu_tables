@@ -47,4 +47,4 @@ awk '{sub(/\s*\S+$/,"")}1' filteredall_wrs_nohead.csv > filteredall_nohead.csv
 cat <(head -n1 filtered_tbl_all.csv) filteredall_nohead.csv > filtered_otu_table.csv
 
 #Delete intermediate files.
-rm f*.tmp *nohead.csv withrowsums.txt
+rm f*.tmp *nohead.csv withrowsums.txt filteredall* rowsums.txt filtered_tbl_all.csv neg_ctrls* max_neg* *subtable.txt *biol_samples*
