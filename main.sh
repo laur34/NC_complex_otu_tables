@@ -7,13 +7,13 @@ tsv_table=$2
 neg_pattern=$3
 
 
-cp $tsv_table example_table.tsv
+#cp $tsv_table example_table.tsv
 
 #Remove header from $otu_table, so that R can read it in correctly.
 sed -z 's/#OTU ID\t//' $otu_table > otutbl_nohashtag.csv
 
 #Run R script which takes information from the "pool" column (second column) of TSV file, to separate the OTU table into subtables (1 subtable per pool).
-Rscript create_subtables.R
+Rscript create_subtables.R "$tsv_table"
 
 #Put the hyphens back into the sample names (R can't use them) (Done in the R script)
 
