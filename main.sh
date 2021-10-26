@@ -10,10 +10,10 @@ neg_pattern=$3
 cp $tsv_table example_table.tsv
 
 #Remove header from $otu_table, so that R can read it in correctly.
-sed -z 's/#OTU ID\t//' $otu_table > otu_table_example.csv
+sed -z 's/#OTU ID\t//' $otu_table > otutbl_nohashtag.csv
 
 #Run R script which takes information from the "pool" column (second column) of TSV file, to separate the OTU table into subtables (1 subtable per pool).
-Rscript create_subtables.R 
+Rscript create_subtables.R
 
 #Put the hyphens back into the sample names (R can't use them) (Done in the R script)
 
@@ -56,5 +56,5 @@ awk '{sub(/\s*\S+$/,"")}1' filteredall_wrs_nohead.csv > filteredall_nohead.csv
 cat <(head -n1 filtered_tbl_all.csv) filteredall_nohead.csv > filtered_otu_table.csv
 
 #Delete intermediate files.
-#rm f*.tmp *nohead.?sv *rowsums.txt filtered_tbl_all.csv max_neg_biol* biol_samples_header.tsv
-#rm otu_table_example.csv filtered_subtable*.csv
+#rm f*.tmp *nohead.?sv *rowsums.txt filtered_tbl_all.csv max_neg_biol* biol_samples_header.tsv otutbl_nohashtag.csv
+#rm filtered_subtable*.csv subtable*.csv
